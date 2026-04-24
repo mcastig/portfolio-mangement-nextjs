@@ -1,0 +1,24 @@
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.page-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: 1.5rem;
+}
+
+.settings-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .page-container { padding: 1.5rem 1rem; }
+}
