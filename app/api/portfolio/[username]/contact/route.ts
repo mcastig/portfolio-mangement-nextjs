@@ -14,6 +14,17 @@ export async function POST(
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(senderEmail)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    }
+    if (senderName.length > 255) {
+      return NextResponse.json({ error: 'Name must be under 255 characters' }, { status: 400 });
+    }
+    if (message.length > 5000) {
+      return NextResponse.json({ error: 'Message must be under 5000 characters' }, { status: 400 });
+    }
+
     const userResult = await query<{ email: string }>(
       'SELECT email FROM users WHERE github_username = $1 OR id::text = $1',
       [username]
