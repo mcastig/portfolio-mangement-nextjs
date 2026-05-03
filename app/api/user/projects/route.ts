@@ -11,6 +11,11 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
+function isValidImageUrl(value: string): boolean {
+  if (value.startsWith('data:image/')) return true;
+  return isValidHttpUrl(value);
+}
+
 export async function GET() {
   try {
     const session = await getSession();
@@ -54,8 +59,8 @@ export async function PUT(request: NextRequest) {
     if (repo_url && !isValidHttpUrl(repo_url)) {
       return NextResponse.json({ error: 'Repo URL must be a valid http/https URL' }, { status: 400 });
     }
-    if (image_url && !isValidHttpUrl(image_url)) {
-      return NextResponse.json({ error: 'Image URL must be a valid http/https URL' }, { status: 400 });
+    if (image_url && !isValidImageUrl(image_url)) {
+      return NextResponse.json({ error: 'Image URL must be a valid URL or uploaded image' }, { status: 400 });
     }
 
     if (id) {
