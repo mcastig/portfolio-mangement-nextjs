@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export async function GET() {
   try {
     const session = await getSession();
@@ -32,6 +41,21 @@ export async function PUT(request: NextRequest) {
 
     if (!name) {
       return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
+    }
+    if (name.length > 255) {
+      return NextResponse.json({ error: 'Project name must be under 255 characters' }, { status: 400 });
+    }
+    if (description && description.length > 2000) {
+      return NextResponse.json({ error: 'Description must be under 2000 characters' }, { status: 400 });
+    }
+    if (demo_url && !isValidHttpUrl(demo_url)) {
+      return NextResponse.json({ error: 'Demo URL must be a valid http/https URL' }, { status: 400 });
+    }
+    if (repo_url && !isValidHttpUrl(repo_url)) {
+      return NextResponse.json({ error: 'Repo URL must be a valid http/https URL' }, { status: 400 });
+    }
+    if (image_url && !isValidHttpUrl(image_url)) {
+      return NextResponse.json({ error: 'Image URL must be a valid http/https URL' }, { status: 400 });
     }
 
     if (id) {
