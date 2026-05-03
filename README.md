@@ -4,6 +4,8 @@ A full-stack developer portfolio management app built with Next.js 16, PostgreSQ
 
 Users sign up (email/password or GitHub OAuth), fill in their profile and projects, and get a shareable public portfolio page at `/portfolio/:username`.
 
+**Live demo:** [portfolio-mangement-nextjs.vercel.app](https://portfolio-mangement-nextjs.vercel.app)
+
 ---
 
 ## Tech Stack
@@ -159,6 +161,25 @@ Tests are split into two environments:
 Notable exclusions from coverage:
 - `lib/db.ts` and `lib/email.ts` are infrastructure wrappers always mocked by callers
 - Server-component layouts and the root redirect page contain no business logic and are not unit-tested
+
+---
+
+## Deployment
+
+The app is deployed on **Vercel** with a **Neon** (serverless PostgreSQL) database.
+
+Required environment variables in Vercel:
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Neon connection string (`?sslmode=require`) |
+| `JWT_SECRET` | Random 32-byte secret (`openssl rand -base64 32`) |
+| `GITHUB_CLIENT_ID` | GitHub OAuth App client ID |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth App client secret |
+| `GITHUB_CALLBACK_URL` | `https://your-domain/api/auth/github/callback` |
+| `SENDGRID_API_KEY` | SendGrid API key |
+| `SENDGRID_FROM_EMAIL` | Verified sender email in SendGrid |
+| `NEXT_PUBLIC_APP_URL` | Production URL (e.g. `https://your-domain.vercel.app`) |
 
 ---
 
