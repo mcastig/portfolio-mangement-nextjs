@@ -3,9 +3,14 @@ import DashboardInit from '@/components/DashboardInit/DashboardInit';
 
 const mockSetUser = jest.fn();
 const mockUseStore = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('@/store/useStore', () => ({
   useStore: (selector: (s: unknown) => unknown) => mockUseStore(selector),
+}));
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: mockReplace }),
 }));
 
 global.fetch = jest.fn();
@@ -58,5 +63,32 @@ describe('DashboardInit', () => {
     await Promise.resolve();
     await Promise.resolve();
     expect(mockSetUser).not.toHaveBeenCalled();
+  });
+
+  it('redirects to /signin when page is restored from bfcache without a session', async () => {
+    setupStore({ id: 'user-123' });
+    (fetch as jest.Mock).mockResolvedValueOnce({ status: 401, json: async () => ({}) });
+    render(<DashboardInit userId="user-123" />);
+
+    const event = new Event('pageshow') as PageTransitionEvent;
+    Object.defineProperty(event, 'persisted', { value: true });
+    window.dispatchEvent(event);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('does not redirect when page is loaded normally (not from bfcache)', async () => {
+    setupStore({ id: 'user-123' });
+    render(<DashboardInit userId="user-123" />);
+
+    const event = new Event('pageshow') as PageTransitionEvent;
+    Object.defineProperty(event, 'persisted', { value: false });
+    window.dispatchEvent(event);
+
+    await Promise.resolve();
+    expect(mockReplace).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
