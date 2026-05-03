@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { signToken, setSessionCookie } from '@/lib/session';
+import { cookies } from 'next/headers';
 
 interface GitHubTokenResponse {
   access_token: string;
@@ -27,8 +28,15 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
+  const state = searchParams.get('state');
 
   if (!code) {
+    return NextResponse.redirect(`${APP_URL}/signin?error=github_auth_failed`);
+  }
+
+  const cookieStore = await cookies();
+  const savedState = cookieStore.get('oauth_state')?.value;
+  if (!state || !savedState || state !== savedState) {
     return NextResponse.redirect(`${APP_URL}/signin?error=github_auth_failed`);
   }
 
@@ -97,6 +105,7 @@ export async function GET(request: NextRequest) {
     const token = signToken({ userId, email: email.toLowerCase() });
     const response = NextResponse.redirect(`${APP_URL}/settings/profile`);
     response.headers.set('Set-Cookie', setSessionCookie(token));
+    response.cookies.set('oauth_state', '', { maxAge: 0, path: '/' });
     return response;
   } catch {
     return NextResponse.redirect(`${APP_URL}/signin?error=github_auth_failed`);
