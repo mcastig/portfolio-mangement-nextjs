@@ -11,6 +11,12 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
+function isValidProfileImage(value: string): boolean {
+  // Allow uploaded images (data URLs) as well as remote http/https URLs
+  if (value.startsWith('data:image/')) return true;
+  return isValidHttpUrl(value);
+}
+
 export async function GET() {
   try {
     const session = await getSession();
@@ -56,8 +62,8 @@ export async function PUT(request: NextRequest) {
     if (bio && bio.length > 2000) {
       return NextResponse.json({ error: 'Bio must be under 2000 characters' }, { status: 400 });
     }
-    if (profile_image && !isValidHttpUrl(profile_image)) {
-      return NextResponse.json({ error: 'Profile image must be a valid http/https URL' }, { status: 400 });
+    if (profile_image && !isValidProfileImage(profile_image)) {
+      return NextResponse.json({ error: 'Profile image must be a valid URL or uploaded image' }, { status: 400 });
     }
 
     await query(
