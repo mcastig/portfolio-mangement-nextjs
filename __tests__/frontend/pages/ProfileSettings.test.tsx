@@ -64,6 +64,7 @@ describe('ProfileSettingsPage', () => {
   it('shows success message after a successful save', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => ({}) });
     render(<ProfileSettingsPage />);
+    await userEvent.type(screen.getByPlaceholderText('Enter your name'), ' edited');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
     await waitFor(() => {
       expect(screen.getByText('Profile saved successfully')).toBeInTheDocument();
@@ -76,6 +77,7 @@ describe('ProfileSettingsPage', () => {
       json: async () => ({ error: 'Unauthorized' }),
     });
     render(<ProfileSettingsPage />);
+    await userEvent.type(screen.getByPlaceholderText('Enter your name'), ' edited');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
     await waitFor(() => {
       expect(screen.getByText('Unauthorized')).toBeInTheDocument();
@@ -99,6 +101,7 @@ describe('ProfileSettingsPage', () => {
     let resolve: (v: unknown) => void;
     (fetch as jest.Mock).mockReturnValueOnce(new Promise((r) => { resolve = r; }));
     render(<ProfileSettingsPage />);
+    await userEvent.type(screen.getByPlaceholderText('Enter your name'), ' edited');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
     expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled();
     resolve!({ ok: true, json: async () => ({}) });

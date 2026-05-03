@@ -38,6 +38,10 @@ const nextConfig: NextConfig = {
         source: '/settings/:path*',
         headers: [{ key: 'Cache-Control', value: 'no-store' }],
       },
+      {
+        source: '/(signin|signup|forgot-password|reset-password)',
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+      },
     ];
   },
 };
