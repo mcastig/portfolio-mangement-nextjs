@@ -9,9 +9,9 @@ export async function GET(
     const { username } = await params;
 
     const userResult = await query<{
-      id: string; name: string; job_title: string; bio: string; profile_image: string; email: string;
+      id: string; name: string; job_title: string; bio: string; profile_image: string;
     }>(
-      'SELECT id, name, job_title, bio, profile_image, email FROM users WHERE github_username = $1 OR id::text = $1',
+      'SELECT id, name, job_title, bio, profile_image FROM users WHERE github_username = $1 OR id::text = $1',
       [username]
     );
 
