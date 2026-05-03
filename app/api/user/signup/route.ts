@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
+    if (password.length < 8 || password.length > 128) {
+      return NextResponse.json({ error: 'Password must be between 8 and 128 characters' }, { status: 400 });
     }
 
     const existing = await query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
