@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      {
+        source: '/settings/:path*',
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+      },
     ];
   },
 };
