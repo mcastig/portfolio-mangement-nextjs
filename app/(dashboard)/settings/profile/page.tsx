@@ -13,6 +13,12 @@ export default function ProfileSettingsPage() {
   const [jobTitle, setJobTitle] = useState('');
   const [bio, setBio] = useState('');
   const [profileImage, setProfileImage] = useState('');
+  const isDirty =
+    name !== (user?.name || '') ||
+    jobTitle !== (user?.job_title || '') ||
+    bio !== (user?.bio || '') ||
+    profileImage !== (user?.profile_image || '');
+
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -163,7 +169,7 @@ export default function ProfileSettingsPage() {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn btn-primary" style={{ width: 'auto', minWidth: 120 }} disabled={saving}>
+            <button type="submit" className="btn btn-primary" style={{ width: 'auto', minWidth: 120 }} disabled={saving || !isDirty}>
               <img src="/check circle.svg" alt="" width={16} height={16} />
               {saving ? 'Saving...' : 'Save'}
             </button>
