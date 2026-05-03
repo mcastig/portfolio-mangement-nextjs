@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
     const token = signToken({ userId, email: email.toLowerCase() });
     const response = NextResponse.redirect(`${APP_URL}/settings/profile`);
     response.headers.set('Set-Cookie', setSessionCookie(token));
-    response.cookies.set('oauth_state', '', { maxAge: 0, path: '/' });
+    response.headers.append('Set-Cookie', 'oauth_state=; Path=/; Max-Age=0');
     return response;
   } catch {
     return NextResponse.redirect(`${APP_URL}/signin?error=github_auth_failed`);

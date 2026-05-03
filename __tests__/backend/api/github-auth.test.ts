@@ -11,8 +11,16 @@ jest.mock('@/lib/session', () => ({
     .mockReturnValue('portfolio_session=mock-jwt; HttpOnly; Path=/'),
 }));
 
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(),
+}));
+
 const { query } = require('@/lib/db') as { query: jest.Mock };
+const { cookies: mockCookies } = require('next/headers') as { cookies: jest.Mock };
 global.fetch = jest.fn();
+
+const VALID_STATE = 'test-oauth-state';
+const mockCookiesGet = jest.fn();
 
 const MOCK_TOKEN = {
   access_token: 'gho_test_token',
@@ -52,6 +60,8 @@ describe('GET /api/auth/github/callback', () => {
     process.env.GITHUB_CLIENT_SECRET = 'test-secret';
     process.env.GITHUB_CALLBACK_URL =
       'http://localhost:3000/api/auth/github/callback';
+    mockCookies.mockResolvedValue({ get: mockCookiesGet });
+    mockCookiesGet.mockReturnValue({ value: VALID_STATE });
   });
 
   it('redirects with error when no code in query string', async () => {
@@ -63,7 +73,7 @@ describe('GET /api/auth/github/callback', () => {
   it('redirects with error when GitHub token exchange fails', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({ json: async () => ({}) });
     const req = new NextRequest(
-      'http://localhost:3000/api/auth/github/callback?code=bad-code'
+      `http://localhost:3000/api/auth/github/callback?code=bad-code&state=${VALID_STATE}`
     );
     const res = await callbackGet(req);
     expect(res.headers.get('Location')).toContain('github_auth_failed');
@@ -75,7 +85,7 @@ describe('GET /api/auth/github/callback', () => {
       .mockResolvedValueOnce({ json: async () => ({ ...MOCK_GITHUB_USER, email: null }) })
       .mockResolvedValueOnce({ json: async () => [] });
     const req = new NextRequest(
-      'http://localhost:3000/api/auth/github/callback?code=code123'
+      `http://localhost:3000/api/auth/github/callback?code=code123&state=${VALID_STATE}`
     );
     const res = await callbackGet(req);
     expect(res.headers.get('Location')).toContain('no_github_email');
@@ -90,11 +100,11 @@ describe('GET /api/auth/github/callback', () => {
       .mockResolvedValueOnce({ rows: [{ id: 'new-user' }], rowCount: 1 });
 
     const req = new NextRequest(
-      'http://localhost:3000/api/auth/github/callback?code=auth-code'
+      `http://localhost:3000/api/auth/github/callback?code=auth-code&state=${VALID_STATE}`
     );
     const res = await callbackGet(req);
     expect(res.headers.get('Location')).toBe('http://localhost:3000/settings/profile');
-    expect(res.headers.get('Set-Cookie')).toContain('portfolio_session');
+    expect(res.headers.getSetCookie().some(c => c.includes('portfolio_session'))).toBe(true);
   });
 
   it('updates an existing user and redirects to settings on repeat login', async () => {
@@ -109,7 +119,7 @@ describe('GET /api/auth/github/callback', () => {
       .mockResolvedValueOnce({ rows: [], rowCount: 1 });
 
     const req = new NextRequest(
-      'http://localhost:3000/api/auth/github/callback?code=auth-code'
+      `http://localhost:3000/api/auth/github/callback?code=auth-code&state=${VALID_STATE}`
     );
     const res = await callbackGet(req);
     expect(res.headers.get('Location')).toBe('http://localhost:3000/settings/profile');
@@ -129,7 +139,7 @@ describe('GET /api/auth/github/callback', () => {
       .mockResolvedValueOnce({ rows: [{ id: 'new-user' }], rowCount: 1 });
 
     const req = new NextRequest(
-      'http://localhost:3000/api/auth/github/callback?code=auth-code'
+      `http://localhost:3000/api/auth/github/callback?code=auth-code&state=${VALID_STATE}`
     );
     const res = await callbackGet(req);
     expect(res.headers.get('Location')).toBe('http://localhost:3000/settings/profile');
