@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProjectsSettingsPage from '@/app/(dashboard)/settings/projects/page';
 import { useStore } from '@/store/useStore';
@@ -43,6 +43,7 @@ describe('ProjectsSettingsPage', () => {
   it('renders the Add project button', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({ json: async () => [] });
     render(<ProjectsSettingsPage />);
+    await waitFor(() => expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument());
     expect(screen.getByRole('button', { name: /add project/i })).toBeInTheDocument();
   });
 

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ForgotPasswordPage from '@/app/(auth)/forgot-password/page';
 
@@ -68,6 +68,8 @@ describe('ForgotPassword Page', () => {
     await userEvent.click(screen.getByRole('button', { name: /reset password/i }));
 
     expect(screen.getByRole('button', { name: /sending/i })).toBeDisabled();
-    resolve!({ ok: true, json: async () => ({}) });
+    await act(async () => {
+      resolve!({ ok: true, json: async () => ({}) });
+    });
   });
 });

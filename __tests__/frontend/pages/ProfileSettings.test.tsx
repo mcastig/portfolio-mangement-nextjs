@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProfileSettingsPage from '@/app/(dashboard)/settings/profile/page';
 
@@ -104,6 +104,8 @@ describe('ProfileSettingsPage', () => {
     await userEvent.type(screen.getByPlaceholderText('Enter your name'), ' edited');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
     expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled();
-    resolve!({ ok: true, json: async () => ({}) });
+    await act(async () => {
+      resolve!({ ok: true, json: async () => ({}) });
+    });
   });
 });

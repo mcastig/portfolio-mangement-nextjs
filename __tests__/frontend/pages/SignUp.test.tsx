@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SignUpPage from '@/app/(auth)/signup/page';
 
@@ -91,6 +91,8 @@ describe('SignUp Page', () => {
     await userEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(screen.getByRole('button', { name: /creating account/i })).toBeDisabled();
-    resolve!({ ok: true, json: async () => ({}) });
+    await act(async () => {
+      resolve!({ ok: true, json: async () => ({}) });
+    });
   });
 });
